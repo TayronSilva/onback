@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              Int           @id @default(autoincrement())
+  cpf             String        @unique
+  name            String?
+  email           String        @unique
+  password        String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  accessProfileId Int
+  address         Address[]
+  accessProfile   AccessProfile @relation(fields: [accessProfileId], references: [id])
+}
+
+model Address {
+  id         Int      @id @default(autoincrement())
+  name       String
+  zipCode    String
+  phone      String
+  address    String
+  additional String
+  reference  String
+  isDefault  Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model AccessProfile {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  users       User[]
+  rules       Rule[]   @relation("ProfileToRules")
+}
+
+model Rule {
+  id             Int             @id @default(autoincrement())
+  name           String          @unique
+  slug           String          @unique
+  description    String?
+  createdAt      DateTime        @default(now())
+  accessProfiles AccessProfile[] @relation("ProfileToRules")
+}
+
+model Product {
+  id             String           @id @default(uuid())
+  name           String
+  slug           String           @unique
+  description    String?
+  price          Decimal          @db.Decimal(10, 2)
+  active         Boolean          @default(true)
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  stocks      Stock[]
+  images      ProductImages[]
+
+  @@map("Products")
+}
+
+model Stock {
+  id             String           @id @default(uuid())
+  productId      String
+
+  size           String?
+  color          String?
+  quantity       Int              @default(0)
+
+  product        Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, size, color])
+  @@map("Stocks")
+}
+
+model ProductImages {
+  id        String  @id @default(uuid())
+  path      String
+  alt       String
+  isMain    Boolean @default(false)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+

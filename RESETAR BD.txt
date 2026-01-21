@@ -1,0 +1,15 @@
+npx prisma migrate reset --force
+npx prisma migrate dev --name init
+npx prisma generate
+npx prisma db push
+----
+
+casos extremos:
+npx prisma migrate reset --force
+npx prisma migrate dev --name init
+
+----
+resetar o bd e ter a seed
+npx prisma migrate reset --force
+npx prisma db seed
+npx prisma migrate dev
