@@ -19,28 +19,34 @@ export class ProductService {
 
     const slug = slugify(dto.name, { lower: true, strict: true });
 
-    return this.prisma.client.$transaction(async tx => {
+    const createdProduct = await this.prisma.client.$transaction(async (tx) => {
       const product = await tx.product.create({
         data: {
           name: dto.name,
           slug,
           description: dto.description ?? null,
-          price: dto.price,
+          price: Number(dto.price),
+          weight: dto.weight ? Number(dto.weight) : null,
+          width: dto.width ? Number(dto.width) : null,
+          height: dto.height ? Number(dto.height) : null,
+          length: dto.length ? Number(dto.length) : null,
           active: true,
         },
       });
 
-      await tx.stock.createMany({
-        data: dto.stocks.map(s => ({
-          productId: product.id,
-          size: s.size ?? null,
-          color: s.color ?? null,
-          quantity: s.quantity,
-        })),
-      });
+      if (dto.stocks && dto.stocks.length > 0) {
+        await tx.stock.createMany({
+          data: dto.stocks.map((s) => ({
+            productId: product.id,
+            size: s.size ?? null,
+            color: s.color ?? null,
+            quantity: Number(s.quantity),
+          })),
+        });
+      }
 
       const paths = await Promise.all(
-        files.map(file => this.supabase.uploadImage(file, product.id)),
+        files.map((file) => this.supabase.uploadImage(file, product.id)),
       );
 
       await tx.productImages.createMany({
@@ -52,8 +58,16 @@ export class ProductService {
         })),
       });
 
-      return this.findOne(product.id);
+      return tx.product.findUnique({
+        where: { id: product.id },
+        include: {
+          images: true,
+          stocks: true,
+        },
+      });
     });
+
+    return this.mapProduct(createdProduct);
   }
 
   async findAll() {
@@ -72,7 +86,7 @@ export class ProductService {
       },
     });
 
-    return products.map(p => this.mapProduct(p));
+    return products.map((p) => this.mapProduct(p));
   }
 
   async findOne(id: string) {
@@ -100,6 +114,12 @@ export class ProductService {
       data.slug = slugify(dto.name, { lower: true, strict: true });
     }
 
+    if (dto.price) data.price = Number(dto.price);
+    if (dto.weight) data.weight = Number(dto.weight);
+    if (dto.width) data.width = Number(dto.width);
+    if (dto.height) data.height = Number(dto.height);
+    if (dto.length) data.length = Number(dto.length);
+
     return this.prisma.client.product.update({
       where: { id },
       data,
@@ -116,13 +136,12 @@ export class ProductService {
   }
 
   private mapProduct(product: any) {
-    const baseUrl =
-      `${process.env.SUPABASE_URL}/storage/v1/object/public/product-images`;
+    const baseUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/product-images`;
 
-    const totalStock = product.stocks.reduce(
-      (sum, s) => sum + s.quantity,
+    const totalStock = product.stocks?.reduce(
+      (sum: number, s: any) => sum + s.quantity,
       0,
-    );
+    ) ?? 0;
 
     return {
       id: product.id,
@@ -130,15 +149,19 @@ export class ProductService {
       slug: product.slug,
       description: product.description,
       price: product.price,
+      weight: product.weight,
+      width: product.width,
+      height: product.height,
+      length: product.length,
       active: product.active,
       totalStock,
-
-      images: product.images.map(img => ({
+      images: product.images?.map((img: any) => ({
         id: img.id,
         alt: img.alt,
         isMain: img.isMain,
         url: `${baseUrl}/${img.path}`,
-      })),
+      })) ?? [],
+      stocks: product.stocks ?? [],
     };
   }
 }

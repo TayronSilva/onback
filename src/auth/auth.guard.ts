@@ -12,7 +12,7 @@ import { Request } from 'express';
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService, // Injetamos o ConfigService aqui também
+    private configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,15 +24,12 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      // Buscamos o segredo diretamente do ConfigService para não ter erro
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
-      
-      // Atribuímos o payload ao request para o controller usar
+
       request['user'] = payload;
     } catch (error) {
-      // Console log temporário para você ver o erro real no terminal do VS Code
       console.error('Erro na validação do Token:', error.message);
       throw new UnauthorizedException('Token inválido ou expirado');
     }

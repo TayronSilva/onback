@@ -15,7 +15,9 @@ model User {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   accessProfileId Int
+
   address         Address[]
+  orders          Order[]
   accessProfile   AccessProfile @relation(fields: [accessProfileId], references: [id])
 }
 
@@ -53,21 +55,27 @@ model Rule {
 }
 
 model Product {
-  id             String           @id @default(uuid())
-  name           String
-  slug           String           @unique
-  description    String?
-  price          Decimal          @db.Decimal(10, 2)
-  active         Boolean          @default(true)
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  active      Boolean  @default(true)
 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  weight      Int?    
+  width       Int?    
+  height      Int?     
+  length      Int?    
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   stocks      Stock[]
   images      ProductImages[]
 
   @@map("Products")
 }
+
 
 model Stock {
   id             String           @id @default(uuid())
@@ -93,3 +101,52 @@ model ProductImages {
   product   Product @relation(fields: [productId], references: [id])
 }
 
+model Order {
+  id           String       @id @default(uuid())
+  userId       Int
+  status       OrderStatus  @default(PENDING)
+
+  subtotal     Decimal      @db.Decimal(10, 2)
+  freight      Decimal      @db.Decimal(10, 2)
+  total        Decimal      @db.Decimal(10, 2)
+
+  paymentId    String?    
+  paymentType  String?      
+  paidAt       DateTime?
+
+  expiresAt    DateTime?   
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id])
+  items        OrderItem[]
+
+  @@map("Orders")
+}
+
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELED
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+
+  productId    String
+  productName  String
+  productPrice Decimal  @db.Decimal(10, 2)
+
+  stockId      String?
+  size         String?
+  color        String?
+
+  quantity     Int
+
+  order        Order    @relation(fields: [orderId], references: [id])
+
+  @@map("OrderItems")
+}

@@ -3,7 +3,6 @@ import { IsNumber, IsOptional, IsString, Min, IsArray, ValidateNested } from 'cl
 import { CreateStockDto } from 'src/stock/dto/create-stock.dto';
 
 export class CreateProductDto {
-
   @IsString()
   name: string;
 
@@ -11,9 +10,30 @@ export class CreateProductDto {
   @IsString()
   description?: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   price: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  weight?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  width?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  height?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  length?: number;
 
   @IsArray()
   @ValidateNested({ each: true })
