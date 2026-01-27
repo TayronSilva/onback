@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
@@ -20,6 +21,14 @@ async function bootstrap() {
       verify: (req: any, res, buf) => {
         req.rawBody = buf.toString();
       },
+    }),
+  );
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 

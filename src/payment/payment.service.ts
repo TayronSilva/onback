@@ -23,7 +23,6 @@ export class PaymentService {
     total: number;
     user: { email: string; name: string; cpf: string };
   }) {
-    // Mercado Pago exige nome e sobrenome separados
     const nameParts = order.user.name.trim().split(' ');
     const firstName = nameParts[0] || 'Cliente';
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'OnBack';
@@ -56,6 +55,75 @@ export class PaymentService {
       paymentId: response.id?.toString(),
       qrCode: transactionData.qr_code,
       qrCodeBase64: transactionData.qr_code_base64,
+    };
+  }
+
+  async createCardPayment(order: {
+    id: string;
+    total: number;
+    user: { email: string; name: string; cpf: string };
+    token: string;
+    installments?: number;
+    paymentMethodId?: string;
+  }) {
+    const nameParts = order.user.name.trim().split(' ');
+    const firstName = nameParts[0] || 'Cliente';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'OnBack';
+
+    const response = await this.payment.create({
+      body: {
+        transaction_amount: order.total,
+        description: `Pedido ${order.id}`,
+        payment_method_id: order.paymentMethodId || 'credit_card',
+        token: order.token,
+        installments: order.installments || 1,
+        payer: {
+          email: order.user.email,
+          first_name: firstName,
+          last_name: lastName,
+          identification: {
+            type: 'CPF',
+            number: order.user.cpf,
+          },
+        },
+        external_reference: order.id,
+      },
+    });
+
+    if (response.status === 'approved') {
+      await this.markOrderAsPaid(response.id?.toString() || '');
+    }
+
+    return {
+      paymentId: response.id?.toString(),
+      status: response.status,
+      statusDetail: response.status_detail,
+      transactionAmount: response.transaction_amount,
+    };
+  }
+
+  async getOrderData(orderId: string) {
+    const order = await this.prisma.client.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+            cpf: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return null;
+    }
+
+    return {
+      id: order.id,
+      total: Number(order.total),
+      user: order.user,
     };
   }
 

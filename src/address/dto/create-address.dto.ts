@@ -45,12 +45,5 @@ export class CreateAddressDto {
         @IsNotEmpty()
         reference: string;
 
-        @ApiProperty({
-            example: 'true or false',
-        })
-        @IsString()
-        @IsNotEmpty()
-        isDefault: boolean;
-
 }
 

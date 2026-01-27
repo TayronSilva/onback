@@ -12,6 +12,8 @@ import { ProductModule } from './product/product.module';
 import { StockModule } from './stock/stock.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
+import { PermissionsModule } from './permissions/permissions.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 import { MercadoPagoModule } from './webhooks/mercadopago.module';
 
@@ -37,11 +39,13 @@ import { MercadoPagoModule } from './webhooks/mercadopago.module';
 
     UsersModule,
     AuthModule,
+    PermissionsModule,
     AddressModule,
     ProductModule,
     StockModule,
     OrderModule,
     PaymentModule,
+    DashboardModule,
     MercadoPagoModule,
   ],
 })

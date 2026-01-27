@@ -7,18 +7,17 @@ datasource db {
 }
 
 model User {
-  id              Int           @id @default(autoincrement())
-  cpf             String        @unique
+  id              Int            @id @default(autoincrement())
+  cpf             String         @unique
   name            String?
-  email           String        @unique
+  email           String         @unique
   password        String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  accessProfileId Int
+  createdAt       DateTime?       @default(now())
+  updatedAt       DateTime?       @updatedAt
 
   address         Address[]
   orders          Order[]
-  accessProfile   AccessProfile @relation(fields: [accessProfileId], references: [id])
+  profiles        UserProfile[]
 }
 
 model Address {
@@ -30,19 +29,20 @@ model Address {
   additional String
   reference  String
   isDefault  Boolean
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
   userId     Int
   user       User     @relation(fields: [userId], references: [id])
 }
 
 model AccessProfile {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
   description String?
-  createdAt   DateTime @default(now())
-  users       User[]
-  rules       Rule[]   @relation("ProfileToRules")
+  createdAt   DateTime?       @default(now())
+  updatedAt   DateTime?       @updatedAt
+  users       UserProfile[]
+  rules       Rule[]         @relation("ProfileToRules")
 }
 
 model Rule {
@@ -50,8 +50,22 @@ model Rule {
   name           String          @unique
   slug           String          @unique
   description    String?
-  createdAt      DateTime        @default(now())
+  createdAt      DateTime?        @default(now())
+  updatedAt      DateTime?        @updatedAt
   accessProfiles AccessProfile[] @relation("ProfileToRules")
+}
+
+model UserProfile {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  accessProfileId Int
+  createdAt       DateTime?      @default(now())
+  
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessProfile   AccessProfile @relation(fields: [accessProfileId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, accessProfileId])
+  @@map("UserProfiles")
 }
 
 model Product {
@@ -67,8 +81,8 @@ model Product {
   height      Int?     
   length      Int?    
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
 
   stocks      Stock[]
   images      ProductImages[]
@@ -116,8 +130,8 @@ model Order {
 
   expiresAt    DateTime?   
 
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime?     @default(now())
+  updatedAt    DateTime?     @updatedAt
 
   user         User         @relation(fields: [userId], references: [id])
   items        OrderItem[]

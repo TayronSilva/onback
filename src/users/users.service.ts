@@ -27,18 +27,41 @@ export class UsersService {
     return this.prismaService.client.user.create({
       data: {
         ...createUserDto,
-        accessProfileId: customerProfile.id,
         password: hashedPassword,
+        profiles: {
+          create: {
+            accessProfileId: customerProfile.id,
+          },
+        },
+      },
+      include: {
+        profiles: {
+          include: {
+            accessProfile: {
+              include: {
+                rules: true,
+              },
+            },
+          },
+        },
       },
     });
   }
 
   async findUserEmailAsync(email: string) {
-    const user = await this.prismaService.client.user.findFirst({
+    const user = await this.prismaService.client.user.findUnique({
       where: { email },
       include: {
-        accessProfile: { include: { rules: true } }
-      }
+        profiles: {
+          include: {
+            accessProfile: {
+              include: {
+                rules: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!user) throw new NotFoundException('User not found');
     return user;

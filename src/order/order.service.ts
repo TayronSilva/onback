@@ -14,6 +14,7 @@ export class OrderService {
 
   async create(userId: number, dto: {
     items: { stockId: string; quantity: number }[];
+    paymentMethod?: 'pix' | 'credit_card' | 'debit_card';
   }) {
     if (!dto.items?.length) {
       throw new BadRequestException('Order must have at least one item');
@@ -80,7 +81,9 @@ export class OrderService {
       );
 
       const subtotalPlusFreight = subtotal + freight;
-      const discount = subtotalPlusFreight * 0.10; 
+      
+      const paymentMethod = dto.paymentMethod || 'pix';
+      const discount = paymentMethod === 'pix' ? subtotalPlusFreight * 0.10 : 0;
       const totalWithDiscount = subtotalPlusFreight - discount;
 
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -99,26 +102,41 @@ export class OrderService {
       });
     });
 
+    const paymentMethod = dto.paymentMethod || 'pix';
+    
     try {
-      const paymentData = await this.paymentService.createPixPayment({
-        id: order.id,
-        total: order.total.toNumber(), 
-        user: { 
-          email: order.user.email,
-          name: order.user.name ?? 'Cliente OnBack',
-          cpf: (order.user.cpf ?? '').replace(/\D/g, '') 
-        },
-      });
+      let paymentData;
+      
+      if (paymentMethod === 'pix') {
+        paymentData = await this.paymentService.createPixPayment({
+          id: order.id,
+          total: order.total.toNumber(), 
+          user: { 
+            email: order.user.email,
+            name: order.user.name ?? 'Cliente OnBack',
+            cpf: (order.user.cpf ?? '').replace(/\D/g, '') 
+          },
+        });
+      } else {
+        paymentData = {
+          paymentMethod,
+          orderId: order.id,
+          total: order.total.toNumber(),
+          message: 'Use o token do Mercado Pago no frontend para processar o pagamento',
+        };
+      }
 
       return {
-        message: 'Pedido criado com sucesso (Desconto de 10% aplicado para PIX)',
+        message: paymentMethod === 'pix' 
+          ? 'Pedido criado com sucesso (Desconto de 10% aplicado para PIX)'
+          : 'Pedido criado com sucesso. Processe o pagamento no frontend.',
         order,
         payment: paymentData,
       };
     } catch (error) {
-      console.error('Erro ao gerar PIX:', error);
+      console.error(`Erro ao processar pagamento (${paymentMethod}):`, error);
       return {
-        message: 'Pedido criado, mas falhou ao gerar PIX',
+        message: 'Pedido criado, mas falhou ao processar pagamento',
         order,
         payment: null,
       };
@@ -142,6 +160,59 @@ export class OrderService {
     const volumeCost = (volume / 1000) * 0.01;
 
     return Number((baseRate + weightCost + volumeCost).toFixed(2));
+  }
+
+  async findAll() {
+    return this.prisma.client.order.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        items: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async findOne(id: string) {
+    const order = await this.prisma.client.order.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            cpf: true,
+          },
+        },
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return order;
+  }
+
+  async findByUser(userId: number) {
+    return this.prisma.client.order.findMany({
+      where: { userId },
+      include: {
+        items: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   async cancel(orderId: string) {

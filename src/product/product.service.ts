@@ -70,19 +70,32 @@ export class ProductService {
     return this.mapProduct(createdProduct);
   }
 
-  async findAll() {
-    const products = await this.prisma.client.product.findMany({
-      where: {
-        active: true,
-        stocks: {
-          some: {
-            quantity: { gt: 0 },
-          },
+  async findAll(search?: string) {
+    const where: any = {
+      active: true,
+      stocks: {
+        some: {
+          quantity: { gt: 0 },
         },
       },
+    };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const products = await this.prisma.client.product.findMany({
+      where,
       include: {
         images: true,
         stocks: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
@@ -143,25 +156,59 @@ export class ProductService {
       0,
     ) ?? 0;
 
+    const availableSizes = [
+      ...new Set(
+        product.stocks
+          ?.filter((s: any) => s.size && s.quantity > 0)
+          .map((s: any) => s.size)
+      ),
+    ] as string[];
+
+    // Extrair cores únicas (apenas as que têm estoque)
+    const availableColors = [
+      ...new Set(
+        product.stocks
+          ?.filter((s: any) => s.color && s.quantity > 0)
+          .map((s: any) => s.color)
+      ),
+    ] as string[];
+
+    const hasSizes = availableSizes.length > 0;
+    const hasColors = availableColors.length > 0;
+    const hasVariations = hasSizes || hasColors;
+
     return {
       id: product.id,
       name: product.name,
       slug: product.slug,
       description: product.description,
-      price: product.price,
+      price: Number(product.price),
       weight: product.weight,
       width: product.width,
       height: product.height,
       length: product.length,
       active: product.active,
       totalStock,
+      hasStock: totalStock > 0,
+      hasSizes,
+      hasColors,
+      hasVariations,
+      availableSizes,
+      availableColors,
+      stocks: product.stocks
+        ?.filter((s: any) => s.quantity > 0)
+        .map((s: any) => ({
+          id: s.id,
+          size: s.size,
+          color: s.color,
+          quantity: s.quantity,
+        })) ?? [],
       images: product.images?.map((img: any) => ({
         id: img.id,
         alt: img.alt,
         isMain: img.isMain,
         url: `${baseUrl}/${img.path}`,
       })) ?? [],
-      stocks: product.stocks ?? [],
     };
   }
 }

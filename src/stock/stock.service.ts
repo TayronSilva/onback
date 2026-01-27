@@ -7,6 +7,26 @@ import { UpdateStockDto } from './dto/update-stock.dto';
 export class StockService {
   constructor(private prisma: PrismaService) {}
 
+  async findAll() {
+    return this.prisma.client.stock.findMany({
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: {
+        product: {
+          createdAt: 'desc',
+        },
+      },
+    });
+  }
+
   async create(dto: CreateStockDto) {
     return this.prisma.client.stock.create({
       data: {
