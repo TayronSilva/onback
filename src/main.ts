@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
@@ -9,12 +9,8 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  dotenv.config(); 
-  
-  console.log('--- TESTE DE VARIÁVEIS ---');
-  console.log('URL:', process.env.SUPABASE_URL);
-  console.log('KEY:', process.env.SUPABASE_KEY ? 'Preenchida' : 'Vazia');
-  console.log('--------------------------');
+  dotenv.config();
+  const logger = new Logger('Bootstrap');
 
   app.use(
     bodyParser.json({
@@ -35,6 +31,6 @@ async function bootstrap() {
   app.enableCors();
 
   await app.listen(3000);
-  console.log('🚀 Backend OnBack rodando na porta 3000');
+  logger.log('🚀 Backend OnBack rodando na porta 3000');
 }
 bootstrap();

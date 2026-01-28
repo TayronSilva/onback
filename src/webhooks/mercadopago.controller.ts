@@ -1,11 +1,11 @@
-import { Controller, Post, Headers, Req, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Headers, Req, BadRequestException, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import type { Request } from 'express';
 import * as crypto from 'crypto';
 import { PaymentService } from 'src/payment/payment.service';
 
 @Controller('webhooks/mercadopago')
 export class MercadoPagoWebhookController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -14,14 +14,14 @@ export class MercadoPagoWebhookController {
     @Headers('x-signature') signature?: string,
   ) {
     const body = req.body;
-    console.log('[WEBHOOK] Notificação recebida:', JSON.stringify(body));
-    
+    Logger.log('[WEBHOOK] Notificação recebida: ' + JSON.stringify(body), 'MercadoPago');
+
     if (signature && process.env.MERCADO_PAGO_WEBHOOK_SECRET) {
       this.validateSignature(req, signature);
     }
 
     const type = body.type || body.action;
-    
+
     if (type !== 'payment' && type !== 'payment.created' && type !== 'payment.updated') {
       return { received: true };
     }
@@ -52,7 +52,7 @@ export class MercadoPagoWebhookController {
 
       if (expectedHash !== hash) throw new BadRequestException('Invalid signature');
     } catch (e) {
-      console.error('[WEBHOOK SIG ERROR]', e.message);
+      Logger.error('[WEBHOOK SIG ERROR] ' + e.message, 'MercadoPago');
     }
   }
 }
