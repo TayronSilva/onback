@@ -19,3 +19,9 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated
+generated/
+
+# Uploads
+uploads/
