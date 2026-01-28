@@ -10,7 +10,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
     private permissionsService: PermissionsService,
-  ) {}
+  ) { }
 
   async signIn(email: string, password: string): Promise<{
     name: string;
@@ -19,9 +19,13 @@ export class AuthService {
     permissions: string[];
   }> {
     const user = await this.userService.findUserEmailAsync(email);
-    
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('User account is inactive');
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -31,9 +35,9 @@ export class AuthService {
 
     const permissions = await this.permissionsService.getUserPermissions(user.id);
 
-    const payload = { 
-      sub: user.id, 
-      name: user.name || 'User', 
+    const payload = {
+      sub: user.id,
+      name: user.name || 'User',
       email: user.email,
       permissions: permissions,
     };
