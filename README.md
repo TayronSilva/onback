@@ -52,7 +52,7 @@ Backend completo para e-commerce desenvolvido com NestJS, Prisma e PostgreSQL. S
 
 ```bash
 # Clone o repositório
-git clone <seu-repositorio>
+git clone <https://github.com/TayronSilva/onback>
 cd onback-backend
 
 # Instale as dependências
