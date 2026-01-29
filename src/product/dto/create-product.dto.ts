@@ -35,8 +35,9 @@ export class CreateProductDto {
   @IsNumber()
   length?: number;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateStockDto)
-  stocks: CreateStockDto[];
+  stocks?: CreateStockDto[];
 }

@@ -3,25 +3,21 @@ import { PaymentService } from './payment.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { PermissionsGuard, RequirePermission } from '../permissions/permissions.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ProcessCardPaymentDto } from './dto/process-card-payment.dto';
 
 @ApiTags('payment')
 @ApiBearerAuth()
 @Controller('payments')
 @UseGuards(AuthGuard, PermissionsGuard)
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService) { }
 
   @Post('card')
   @RequirePermission('order:manage', 'cart:manage')
   @ApiOperation({ summary: 'Processar pagamento por cartão de crédito/débito' })
-  async createCardPayment(@Body() dto: {
-    orderId: string;
-    token: string;
-    installments?: number;
-    paymentMethodId?: 'credit_card' | 'debit_card';
-  }) {
+  async createCardPayment(@Body() dto: ProcessCardPaymentDto) {
     const order = await this.paymentService.getOrderData(dto.orderId);
-    
+
     if (!order) {
       throw new Error('Pedido não encontrado');
     }

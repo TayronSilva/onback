@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import MercadoPagoConfig, { Payment } from 'mercadopago';
 import { PrismaService } from 'database/prisma/prisma.service';
@@ -70,36 +70,41 @@ export class PaymentService {
     const firstName = nameParts[0] || 'Cliente';
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'OnBack';
 
-    const response = await this.payment.create({
-      body: {
-        transaction_amount: order.total,
-        description: `Pedido ${order.id}`,
-        payment_method_id: order.paymentMethodId || 'credit_card',
-        token: order.token,
-        installments: order.installments || 1,
-        payer: {
-          email: order.user.email,
-          first_name: firstName,
-          last_name: lastName,
-          identification: {
-            type: 'CPF',
-            number: order.user.cpf,
+    try {
+      const response = await this.payment.create({
+        body: {
+          transaction_amount: order.total,
+          description: `Pedido ${order.id}`,
+          payment_method_id: order.paymentMethodId || 'credit_card',
+          token: order.token,
+          installments: order.installments || 1,
+          payer: {
+            email: order.user.email,
+            first_name: firstName,
+            last_name: lastName,
+            identification: {
+              type: 'CPF',
+              number: order.user.cpf,
+            },
           },
+          external_reference: order.id,
         },
-        external_reference: order.id,
-      },
-    });
+      });
 
-    if (response.status === 'approved') {
-      await this.markOrderAsPaid(response.id?.toString() || '');
+      if (response.status === 'approved') {
+        await this.markOrderAsPaid(response.id?.toString() || '');
+      }
+
+      return {
+        paymentId: response.id?.toString(),
+        status: response.status,
+        statusDetail: response.status_detail,
+        transactionAmount: response.transaction_amount,
+      };
+    } catch (error: any) {
+      const message = error.message || 'Erro ao processar pagamento com cartão';
+      throw new BadRequestException(message);
     }
-
-    return {
-      paymentId: response.id?.toString(),
-      status: response.status,
-      statusDetail: response.status_detail,
-      transactionAmount: response.transaction_amount,
-    };
   }
 
   async getOrderData(orderId: string) {

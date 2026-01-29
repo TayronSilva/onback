@@ -28,7 +28,11 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors();
+  app.enableCors({
+    origin: true, // Allow all origins during development, or specify your front-end URL
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
 
   await app.listen(3000);
   logger.log('🚀 Backend OnBack rodando na porta 3000');

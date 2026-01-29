@@ -53,6 +53,26 @@ async function main() {
       name: 'OWNER',
       description: 'Acesso total',
       rules: { connect: allRules.map(r => ({ id: r.id })) }
+    }
+  });
+
+  const customerProfile = await prisma.accessProfile.upsert({
+    where: { name: 'CUSTOMER' },
+    update: {
+      rules: {
+        set: allRules
+          .filter(r => ['product:view', 'order:manage', 'cart:manage', 'address:manage', 'order:view'].includes(r.slug))
+          .map(r => ({ id: r.id }))
+      }
+    },
+    create: {
+      name: 'CUSTOMER',
+      description: 'Acesso de cliente comum',
+      rules: {
+        connect: allRules
+          .filter(r => ['product:view', 'order:manage', 'cart:manage', 'address:manage', 'order:view'].includes(r.slug))
+          .map(r => ({ id: r.id }))
+      }
     },
   });
 
