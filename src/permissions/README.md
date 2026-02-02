@@ -1,28 +1,28 @@
-# Sistema de Permissões (RBAC)
+# Permission System (RBAC)
 
-Este módulo implementa um sistema RBAC (Role-Based Access Control) baseado em permissões, onde o poder do sistema vem das regras (permissões) e não de cargos fixos.
+This module implements a permission-based RBAC (Role-Based Access Control) system, where the system's power comes from rules (permissions) rather than fixed roles.
 
-## Conceitos
+## Concepts
 
 ### OWNER
-- Perfil supremo que possui **todas as permissões automaticamente**
-- Não é hardcoded - é apenas um perfil com todas as regras
-- Único que pode criar novas regras, criar perfis e atribuir regras a perfis
+- Supreme profile that has **all permissions automatically**.
+- Not hardcoded - it's just a profile with all rules.
+- Only one who can create new rules, create profiles, and assign rules to profiles.
 
 ### AccessProfiles
-- Conjuntos de regras (permissões)
-- Exemplos: `CUSTOMER`, `MOD_STOCK`, `ADMIN_PRODUCTS`, `DESIGNER_SITE`, etc.
-- Criados e gerenciados pelo OWNER
-- Usuários podem ter múltiplos perfis
+- Sets of rules (permissions).
+- Examples: `CUSTOMER`, `MOD_STOCK`, `ADMIN_PRODUCTS`, `DESIGNER_SITE`, etc.
+- Created and managed by the OWNER.
+- Users can have multiple profiles.
 
-### Rules (Regras/Permissões)
-- Permissões granulares do sistema
-- Formato: `recurso:ação` (ex: `product:create`, `order:view`)
-- Criadas e gerenciadas pelo OWNER
+### Rules (Permissions)
+- Granular system permissions.
+- Format: `resource:action` (e.g., `product:create`, `order:view`).
+- Created and managed by the OWNER.
 
-## Como Usar
+## How to Use
 
-### 1. Proteger uma rota com permissão
+### 1. Protecting a route with permission
 
 ```typescript
 import { UseGuards } from '@nestjs/common';
@@ -35,24 +35,24 @@ export class ProductController {
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('product:create')
   async createProduct(@Body() dto: CreateProductDto) {
-    // Apenas usuários com permissão 'product:create' ou OWNER podem acessar
+    // Only users with 'product:create' permission or OWNER can access
   }
 }
 ```
 
-### 2. Múltiplas permissões (OR lógico)
+### 2. Multiple permissions (Logical OR)
 
-Se você passar múltiplas permissões, o usuário precisa ter **pelo menos uma** delas:
+If you pass multiple permissions, the user needs to have **at least one** of them:
 
 ```typescript
 @RequirePermission('product:create', 'product:update')
 @Post('products')
 async createOrUpdateProduct() {
-  // Usuário precisa ter 'product:create' OU 'product:update'
+  // User needs to have 'product:create' OR 'product:update'
 }
 ```
 
-### 3. Verificar permissão no código
+### 3. Checking permission in code
 
 ```typescript
 import { PermissionsService } from '../permissions/permissions.service';
@@ -63,74 +63,74 @@ async someMethod(userId: number) {
   const canCreate = await this.permissionsService.hasPermission(userId, 'product:create');
   
   if (!canCreate) {
-    throw new ForbiddenException('Sem permissão para criar produtos');
+    throw new ForbiddenException('No permission to create products');
   }
   
-  // ... lógica
+  // ... logic
 }
 ```
 
-### 4. Obter todas as permissões de um usuário
+### 4. Getting all permissions of a user
 
 ```typescript
 const permissions = await this.permissionsService.getUserPermissions(userId);
-// OWNER retorna todas as permissões existentes no sistema
-// Outros usuários retornam apenas as permissões dos seus perfis
+// OWNER returns all existing permissions in the system
+// Other users return only the permissions from their profiles
 ```
 
-### 5. Verificar se é OWNER
+### 5. Checking if user is OWNER
 
 ```typescript
 const isOwner = await this.permissionsService.isOwner(userId);
 if (isOwner) {
-  // OWNER tem acesso total
+  // OWNER has full access
 }
 ```
 
-## Endpoints de Gerenciamento (apenas OWNER)
+## Management Endpoints (OWNER only)
 
-### Regras
-- `POST /permissions/rules` - Criar regra
-- `GET /permissions/rules` - Listar regras
-- `GET /permissions/rules/:id` - Obter regra
-- `PUT /permissions/rules/:id` - Atualizar regra
-- `DELETE /permissions/rules/:id` - Deletar regra
+### Rules
+- `POST /permissions/rules` - Create rule
+- `GET /permissions/rules` - List rules
+- `GET /permissions/rules/:id` - Get rule
+- `PUT /permissions/rules/:id` - Update rule
+- `DELETE /permissions/rules/:id` - Delete rule
 
-### Perfis
-- `POST /permissions/profiles` - Criar perfil
-- `GET /permissions/profiles` - Listar perfis
-- `GET /permissions/profiles/:id` - Obter perfil
-- `PUT /permissions/profiles/:id` - Atualizar perfil
-- `DELETE /permissions/profiles/:id` - Deletar perfil
+### Profiles
+- `POST /permissions/profiles` - Create profile
+- `GET /permissions/profiles` - List profiles
+- `GET /permissions/profiles/:id` - Get profile
+- `PUT /permissions/profiles/:id` - Update profile
+- `DELETE /permissions/profiles/:id` - Delete profile
 
-### Perfis de Usuário
-- `POST /permissions/users/:userId/profiles/:profileId` - Atribuir perfil
-- `DELETE /permissions/users/:userId/profiles/:profileId` - Remover perfil
-- `GET /permissions/users/:userId/profiles` - Listar perfis do usuário
+### User Profiles
+- `POST /permissions/users/:userId/profiles/:profileId` - Assign profile
+- `DELETE /permissions/users/:userId/profiles/:profileId` - Remove profile
+- `GET /permissions/users/:userId/profiles` - List user profiles
 
-## Fluxo de Verificação
+## Verification Flow
 
-1. **AuthGuard** verifica se o token JWT é válido e adiciona `user` na request
-2. **PermissionsGuard** verifica se o usuário tem as permissões requeridas
-3. Se o usuário tem perfil **OWNER**, automaticamente tem todas as permissões
-4. Caso contrário, verifica se o usuário tem pelo menos uma das permissões requeridas
+1. **AuthGuard** verifies if the JWT token is valid and adds `user` to the request.
+2. **PermissionsGuard** verifies if the user has the required permissions.
+3. If the user has the **OWNER** profile, they automatically have all permissions.
+4. Otherwise, it checks if the user has at least one of the required permissions.
 
-## Exemplos de Permissões
+## Permission Examples
 
-- `product:view` - Visualizar produtos
-- `product:create` - Criar produtos
-- `product:update` - Editar produtos
-- `product:delete` - Deletar produtos
-- `stock:view` - Visualizar estoque
-- `stock:manage` - Gerenciar estoque
-- `order:view` - Visualizar pedidos
-- `order:manage` - Gerenciar pedidos
-- `rule:create` - Criar regras (apenas OWNER)
-- `profile:create` - Criar perfis (apenas OWNER)
+- `product:view` - View products
+- `product:create` - Create products
+- `product:update` - Edit products
+- `product:delete` - Delete products
+- `stock:view` - View stock
+- `stock:manage` - Manage stock
+- `order:view` - View orders
+- `order:manage` - Manage orders
+- `rule:create` - Create rules (OWNER only)
+- `profile:create` - Create profiles (OWNER only)
 
-## Notas Importantes
+## Important Notes
 
-- O OWNER **não é hardcoded** - é apenas um perfil especial que possui todas as regras
-- Usuários podem ter **múltiplos perfis** simultaneamente
-- Permissões são **granulares** e podem ser combinadas em perfis específicos
-- O sistema é **escalável** - novas regras podem ser criadas conforme necessário
+- The OWNER **is not hardcoded** - it's just a special profile that has all rules.
+- Users can have **multiple profiles** simultaneously.
+- Permissions are **granular** and can be combined into specific profiles.
+- The system is **scalable** - new rules can be created as needed.

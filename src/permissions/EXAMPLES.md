@@ -1,26 +1,26 @@
-# Exemplos de Uso do Sistema de Permissões
+# Permission System Usage Examples
 
-## Exemplo 1: Rota Pública (sem autenticação)
+## Example 1: Public Route (no authentication)
 
 ```typescript
 @Controller('products')
 export class ProductController {
   @Get()
-  // Sem guards - rota pública
+  // No guards - public route
   findAll() {
     return this.service.findAll();
   }
 }
 ```
 
-## Exemplo 2: Rota Autenticada (sem verificação de permissão)
+## Example 2: Authenticated Route (no permission check)
 
 ```typescript
 @Controller('orders')
 export class OrderController {
   @Get('me')
   @UseGuards(AuthGuard)
-  // Apenas autenticação necessária
+  // Only authentication required
   findMyOrders(@Request() req) {
     const userId = req.user.sub;
     return this.service.findByUser(userId);
@@ -28,7 +28,7 @@ export class OrderController {
 }
 ```
 
-## Exemplo 3: Rota com Permissão Única
+## Example 3: Route with Single Permission
 
 ```typescript
 @Controller('products')
@@ -37,13 +37,13 @@ export class ProductController {
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('product:create')
   create(@Body() dto: CreateProductDto) {
-    // Apenas usuários com 'product:create' ou OWNER podem acessar
+    // Only users with 'product:create' or OWNER can access
     return this.service.create(dto);
   }
 }
 ```
 
-## Exemplo 4: Rota com Múltiplas Permissões (OR)
+## Example 4: Route with Multiple Permissions (OR)
 
 ```typescript
 @Controller('products')
@@ -51,20 +51,20 @@ export class ProductController {
   @Patch(':id')
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('product:update', 'product:create')
-  // Usuário precisa ter 'product:update' OU 'product:create'
+  // User needs to have 'product:update' OR 'product:create'
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.service.update(id, dto);
   }
 }
 ```
 
-## Exemplo 5: Guard no Nível do Controller
+## Example 5: Guard at Controller Level
 
 ```typescript
 @Controller('admin')
 @UseGuards(AuthGuard, PermissionsGuard)
 export class AdminController {
-  // Todas as rotas deste controller precisam de autenticação
+  // All routes in this controller require authentication
   
   @Get('dashboard')
   @RequirePermission('admin:dashboard')
@@ -80,7 +80,7 @@ export class AdminController {
 }
 ```
 
-## Exemplo 6: Verificação Manual de Permissão
+## Example 6: Manual Permission Check
 
 ```typescript
 @Injectable()
@@ -91,14 +91,14 @@ export class ProductService {
   ) {}
 
   async create(userId: number, dto: CreateProductDto) {
-    // Verificação manual
+    // Manual check
     const canCreate = await this.permissionsService.hasPermission(
       userId,
       'product:create',
     );
 
     if (!canCreate) {
-      throw new ForbiddenException('Sem permissão para criar produtos');
+      throw new ForbiddenException('No permission to create products');
     }
 
     return this.prisma.product.create({ data: dto });
@@ -106,7 +106,7 @@ export class ProductService {
 }
 ```
 
-## Exemplo 7: Verificar se é OWNER
+## Example 7: Checking if user is OWNER
 
 ```typescript
 @Injectable()
@@ -114,19 +114,19 @@ export class AdminService {
   constructor(private permissionsService: PermissionsService) {}
 
   async deleteEverything(userId: number) {
-    // Apenas OWNER pode fazer isso
+    // Only OWNER can do this
     const isOwner = await this.permissionsService.isOwner(userId);
     
     if (!isOwner) {
-      throw new ForbiddenException('Apenas OWNER pode executar esta ação');
+      throw new ForbiddenException('Only OWNER can perform this action');
     }
 
-    // ... lógica perigosa
+    // ... dangerous logic
   }
 }
 ```
 
-## Exemplo 8: Obter Todas as Permissões do Usuário
+## Example 8: Get All User Permissions
 
 ```typescript
 @Get('me/permissions')
@@ -143,7 +143,7 @@ async getMyPermissions(@Request() req) {
 }
 ```
 
-## Exemplo 9: Rota com Permissão Condicional
+## Example 9: Route with Conditional Permission
 
 ```typescript
 @Patch('products/:id')
@@ -156,10 +156,10 @@ async updateProduct(
   const userId = req.user.sub;
   const product = await this.service.findOne(id);
 
-  // OWNER pode editar qualquer produto
+  // OWNER can edit any product
   const isOwner = await this.permissionsService.isOwner(userId);
   
-  // Outros usuários precisam de permissão E ser o dono do produto
+  // Other users need permission AND must be the product owner
   if (!isOwner) {
     const hasPermission = await this.permissionsService.hasPermission(
       userId,
@@ -167,7 +167,7 @@ async updateProduct(
     );
     
     if (!hasPermission || product.userId !== userId) {
-      throw new ForbiddenException('Sem permissão para editar este produto');
+      throw new ForbiddenException('No permission to edit this product');
     }
   }
 
@@ -175,7 +175,7 @@ async updateProduct(
 }
 ```
 
-## Exemplo 10: Múltiplos Guards com Lógica Customizada
+## Example 10: Multiple Guards with Custom Logic
 
 ```typescript
 @Controller('products')
@@ -187,12 +187,12 @@ export class ProductController {
     const userId = req.user.sub;
     const product = await this.service.findOne(id);
 
-    // OWNER pode deletar qualquer coisa
+    // OWNER can delete anything
     const isOwner = await this.permissionsService.isOwner(userId);
     
-    // Outros precisam de permissão E ser o dono
+    // Others need permission AND must be the owner
     if (!isOwner && product.userId !== userId) {
-      throw new ForbiddenException('Você só pode deletar seus próprios produtos');
+      throw new ForbiddenException('You can only delete your own products');
     }
 
     return this.service.remove(id);
@@ -200,24 +200,24 @@ export class ProductController {
 }
 ```
 
-## Ordem dos Guards
+## Guard Order
 
-A ordem importa! Sempre use nesta ordem:
+Order matters! Always use in this order:
 
-1. **AuthGuard** primeiro (valida autenticação)
-2. **PermissionsGuard** depois (valida permissões)
+1. **AuthGuard** first (validates authentication)
+2. **PermissionsGuard** second (validates permissions)
 
 ```typescript
-@UseGuards(AuthGuard, PermissionsGuard) // ✅ Correto
+@UseGuards(AuthGuard, PermissionsGuard) // ✅ Correct
 @RequirePermission('product:create')
 
-// ❌ ERRADO - PermissionsGuard precisa do user do AuthGuard
+// ❌ WRONG - PermissionsGuard needs the user from AuthGuard
 @UseGuards(PermissionsGuard, AuthGuard)
 ```
 
-## Importar o Módulo
+## Import the Module
 
-Para usar o `PermissionsGuard` em outros módulos, importe o `PermissionsModule`:
+To use `PermissionsGuard` in other modules, import `PermissionsModule`:
 
 ```typescript
 import { PermissionsModule } from '../permissions/permissions.module';

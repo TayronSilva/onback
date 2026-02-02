@@ -1,4 +1,4 @@
-# 📋 Lista Completa de Rotas da API
+# 📋 Full API Route List
 
 ## Base URL
 ```
@@ -7,87 +7,87 @@ http://localhost:3000
 
 ---
 
-## 🔑 AUTENTICAÇÃO
+## 🔑 AUTHENTICATION
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| POST | `/auth/login` | ❌ Público | - |
+| POST | `/auth/login` | ❌ Public | - |
 
 **Body:**
 ```json
 {
-  "email": "usuario@example.com",
-  "password": "senha123"
+  "email": "user@example.com",
+  "password": "password123"
 }
 ```
 
 ---
 
-## 👤 USUÁRIOS
+## 👤 USERS
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| POST | `/users` | ❌ Público | - |
+| POST | `/users` | ❌ Public | - |
 | PATCH | `/users/me` | ✅ | - |
 
 **POST /users Body:**
 ```json
 {
   "cpf": "123.456.789-00",
-  "name": "João Silva",
-  "email": "joao@example.com",
-  "password": "senha123"
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
 }
 ```
 
 **PATCH /users/me Body:**
 ```json
 {
-  "name": "João Silva Atualizado",
-  "email": "novoemail@example.com",
-  "password": "novasenha123"
+  "name": "Updated John Doe",
+  "email": "newemail@example.com",
+  "password": "newpassword123"
 }
 ```
 
 ---
 
-## 📦 PRODUTOS
+## 📦 PRODUCTS
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| GET | `/products` | ❌ Público | - |
-| GET | `/products?search=termo` | ❌ Público | - |
-| GET | `/products/:id` | ❌ Público | - |
+| GET | `/products` | ❌ Public | - |
+| GET | `/products?search=term` | ❌ Public | - |
+| GET | `/products/:id` | ❌ Public | - |
 | POST | `/products` | ✅ | `product:create` |
 | PATCH | `/products/:id` | ✅ | `product:update` |
 | DELETE | `/products/:id` | ✅ | `product:delete` |
 
 **POST /products** (multipart/form-data):
 ```
-name: Mochila Premium
-description: Mochila resistente
+name: Premium Backpack
+description: Durable backpack
 price: 299.90
 weight: 1500
 width: 35
 height: 45
 length: 20
 stocks: []
-files: [arquivo de imagem]
+files: [image file]
 ```
 
 **PATCH /products/:id Body:**
 ```json
 {
-  "name": "Mochila Premium Atualizada",
+  "name": "Updated Premium Backpack",
   "price": 349.90
 }
 ```
 
 ---
 
-## 📊 ESTOQUE
+## 📊 STOCK
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
 | GET | `/stocks` | ✅ | `stock:view` |
 | POST | `/stocks` | ✅ | `stock:manage` |
@@ -99,7 +99,7 @@ files: [arquivo de imagem]
 {
   "productId": "550e8400-e29b-41d4-a716-446655440000",
   "size": "M",
-  "color": "Preto",
+  "color": "Black",
   "quantity": 10
 }
 ```
@@ -108,17 +108,17 @@ files: [arquivo de imagem]
 ```json
 {
   "quantity": 15,
-  "size": "G"
+  "size": "L"
 }
 ```
 
 ---
 
-## 🛒 PEDIDOS
+## 🛒 ORDERS
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| POST | `/orders` | ✅ | `order:manage` ou `cart:manage` |
+| POST | `/orders` | ✅ | `order:manage` or `cart:manage` |
 | GET | `/orders` | ✅ | `order:view` |
 | GET | `/orders/me` | ✅ | `order:view` |
 | GET | `/orders/:id` | ✅ | `order:view` |
@@ -137,16 +137,16 @@ files: [arquivo de imagem]
 }
 ```
 
-**Opções de paymentMethod:**
-- `"pix"` - Desconto de 10%
-- `"credit_card"` - Cartão de crédito
-- `"debit_card"` - Cartão de débito
+**paymentMethod Options:**
+- `"pix"` - 10% discount
+- `"credit_card"` - Credit card
+- `"debit_card"` - Debit card
 
 ---
 
-## 📍 ENDEREÇOS
+## 📍 ADDRESSES
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
 | POST | `/address` | ✅ | `address:manage` |
 | GET | `/address/me` | ✅ | `address:manage` |
@@ -156,29 +156,29 @@ files: [arquivo de imagem]
 **POST /address Body:**
 ```json
 {
-  "name": "João Silva",
+  "name": "John Doe",
   "zipCode": "26584-260",
   "phone": "(11)98765-4321",
-  "address": "Rua das Flores, 123",
-  "additional": "Apto 202",
-  "reference": "Próximo ao mercado",
+  "address": "123 Flower Street",
+  "additional": "Apt 202",
+  "reference": "Near marketplace",
   "isDefault": true
 }
 ```
 
 ---
 
-## 💳 PAGAMENTOS
+## 💳 PAYMENTS
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| POST | `/payments/card` | ✅ | `order:manage` ou `cart:manage` |
+| POST | `/payments/card` | ✅ | `order:manage` or `cart:manage` |
 
 **POST /payments/card Body:**
 ```json
 {
   "orderId": "550e8400-e29b-41d4-a716-446655440000",
-  "token": "token_do_mercado_pago",
+  "token": "mercado_pago_token",
   "installments": 3,
   "paymentMethodId": "credit_card"
 }
@@ -186,11 +186,11 @@ files: [arquivo de imagem]
 
 ---
 
-## 🔐 PERMISSÕES (Apenas OWNER)
+## 🔐 PERMISSIONS (OWNER Only)
 
-### Regras
+### Rules
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
 | GET | `/permissions/rules` | ✅ | `rule:view` |
 | GET | `/permissions/rules/:id` | ✅ | `rule:view` |
@@ -201,15 +201,15 @@ files: [arquivo de imagem]
 **POST /permissions/rules Body:**
 ```json
 {
-  "name": "Nova Permissão",
+  "name": "New Permission",
   "slug": "resource:action",
-  "description": "Descrição da permissão"
+  "description": "Permission description"
 }
 ```
 
-### Perfis
+### Profiles
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
 | GET | `/permissions/profiles` | ✅ | `profile:view` |
 | GET | `/permissions/profiles/:id` | ✅ | `profile:view` |
@@ -220,15 +220,15 @@ files: [arquivo de imagem]
 **POST /permissions/profiles Body:**
 ```json
 {
-  "name": "ADMIN_COMPLETO",
-  "description": "Perfil com todas as permissões",
+  "name": "FULL_ADMIN",
+  "description": "Profile with all permissions",
   "ruleIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 }
 ```
 
-### Gerenciamento de Perfis de Usuário
+### User Profile Management
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
 | GET | `/permissions/users/:userId/profiles` | ✅ | `user:view-profiles` |
 | POST | `/permissions/users/:userId/profiles/:profileId` | ✅ | `user:assign-profile` (OWNER) |
@@ -238,18 +238,18 @@ files: [arquivo de imagem]
 
 ## 📊 DASHBOARD
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| GET | `/dashboard/statistics` | ✅ | `order:view` ou `user:view` |
+| GET | `/dashboard/statistics` | ✅ | `order:view` or `user:view` |
 | GET | `/dashboard/sales-chart?days=30` | ✅ | `order:view` |
 
 ---
 
 ## 🔔 WEBHOOKS
 
-| Método | Rota | Autenticação | Permissão |
+| Method | Route | Authentication | Permission |
 |--------|------|--------------|-----------|
-| POST | `/webhooks/mercadopago` | ❌ Público | - |
+| POST | `/webhooks/mercadopago` | ❌ Public | - |
 
 **Body:**
 ```json
@@ -263,58 +263,58 @@ files: [arquivo de imagem]
 
 ---
 
-## 📝 Headers Necessários
+## 📝 Required Headers
 
-### Para Rotas Autenticadas:
+### For Authenticated Routes:
 ```
-Authorization: Bearer {seu_token_aqui}
+Authorization: Bearer {your_token_here}
 Content-Type: application/json
 ```
 
-### Para Upload de Arquivos:
+### For File Uploads:
 ```
-Authorization: Bearer {seu_token_aqui}
+Authorization: Bearer {your_token_here}
 Content-Type: multipart/form-data
 ```
 
 ---
 
-## 🎯 Resumo de Permissões por Rota
+## 🎯 Permission Summary by Route
 
-### Públicas (sem autenticação):
+### Public (no authentication):
 - `POST /auth/login`
 - `POST /users`
 - `GET /products`
 - `GET /products/:id`
 - `POST /webhooks/mercadopago`
 
-### Autenticadas (apenas login):
+### Authenticated (login only):
 - `PATCH /users/me`
 
-### Com Permissões Específicas:
-- **Produtos:** `product:create`, `product:update`, `product:delete`
-- **Estoque:** `stock:view`, `stock:manage`
-- **Pedidos:** `order:view`, `order:manage`, `cart:manage`
-- **Endereços:** `address:manage`
-- **Pagamentos:** `order:manage`, `cart:manage`
-- **Permissões:** `rule:*`, `profile:*`, `user:*` (apenas OWNER)
+### With Specific Permissions:
+- **Products:** `product:create`, `product:update`, `product:delete`
+- **Stock:** `stock:view`, `stock:manage`
+- **Orders:** `order:view`, `order:manage`, `cart:manage`
+- **Addresses:** `address:manage`
+- **Payments:** `order:manage`, `cart:manage`
+- **Permissions:** `rule:*`, `profile:*`, `user:*` (OWNER only)
 - **Dashboard:** `order:view`, `user:view`
 
 ---
 
-## 🚀 Scripts Úteis
+## 🚀 Useful Scripts
 
-### Criar perfil com todas as permissões:
+### Create profile with all permissions:
 ```bash
 npm run create-admin-profile
 ```
 
-### Atribuir perfil a usuário:
+### Assign profile to user:
 ```bash
 npm run assign-profile {userId} {profileId}
 ```
 
-### Executar seed:
+### Run seed:
 ```bash
 npx prisma db seed
 ```

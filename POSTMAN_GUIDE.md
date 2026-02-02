@@ -1,22 +1,22 @@
-# 📋 Guia Completo de Rotas - Postman
+# 📋 Full Route Guide - Postman
 
-## 🔐 Configuração Inicial
+## 🔐 Initial Configuration
 
-### 1. Variável de Ambiente no Postman
-Crie uma variável de ambiente chamada `base_url` com o valor:
+### 1. Environment Variable in Postman
+Create an environment variable named `base_url` with the value:
 ```
 http://localhost:3000
 ```
 
-### 2. Variável para Token
-Crie uma variável `token` que será preenchida após o login.
+### 2. Token Variable
+Create a `token` variable that will be populated after login.
 
 ---
 
-## 🔑 AUTENTICAÇÃO
+## 🔑 AUTHENTICATION
 
 ### POST /auth/login
-**Público** - Não precisa de autenticação
+**Public** - Authentication not required
 
 **Headers:**
 ```
@@ -26,29 +26,29 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "email": "usuario@example.com",
-  "password": "senha123"
+  "email": "user@example.com",
+  "password": "password123"
 }
 ```
 
-**Resposta:**
+**Response:**
 ```json
 {
-  "name": "João Silva",
-  "email": "usuario@example.com",
+  "name": "John Doe",
+  "email": "user@example.com",
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "permissions": ["product:view", "cart:manage", ...]
 }
 ```
 
-**⚠️ IMPORTANTE:** Copie o `access_token` e salve na variável `token` do Postman.
+**⚠️ IMPORTANT:** Copy the `access_token` and save it in the `token` variable in Postman.
 
 ---
 
-## 👤 USUÁRIOS
+## 👤 USERS
 
 ### POST /users
-**Público** - Criar novo usuário
+**Public** - Create new user
 
 **Headers:**
 ```
@@ -59,14 +59,14 @@ Content-Type: application/json
 ```json
 {
   "cpf": "123.456.789-00",
-  "name": "João Silva",
-  "email": "joao@example.com",
-  "password": "senha123"
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
 }
 ```
 
 ### PATCH /users/me
-**Autenticado** - Atualizar próprio perfil
+**Authenticated** - Update own profile
 
 **Headers:**
 ```
@@ -77,39 +77,39 @@ Authorization: Bearer {{token}}
 **Body (JSON):**
 ```json
 {
-  "name": "João Silva Atualizado",
-  "email": "novoemail@example.com",
-  "password": "novasenha123"
+  "name": "Updated John Doe",
+  "email": "newemail@example.com",
+  "password": "newpassword123"
 }
 ```
 
 ---
 
-## 📦 PRODUTOS
+## 📦 PRODUCTS
 
 ### GET /products
-**Público** - Listar todos os produtos
+**Public** - List all products
 
-**Query Params (opcional):**
+**Query Params (optional):**
 ```
-?search=mochila
+?search=backpack
 ```
 
 **Headers:**
 ```
-(nenhum necessário)
+(none required)
 ```
 
 ### GET /products/:id
-**Público** - Obter produto específico
+**Public** - Get specific product
 
-**Exemplo:**
+**Example:**
 ```
 GET {{base_url}}/products/550e8400-e29b-41d4-a716-446655440000
 ```
 
 ### POST /products
-**Autenticado + Permissão:** `product:create`
+**Authenticated + Permission:** `product:create`
 
 **Headers:**
 ```
@@ -119,31 +119,31 @@ Content-Type: multipart/form-data
 
 **Body (form-data):**
 ```
-name: Mochila Premium
-description: Mochila resistente para notebook
+name: Premium Backpack
+description: Durable laptop backpack
 price: 299.90
 weight: 1500
 width: 35
 height: 45
 length: 20
-stocks[0][productId]: (será preenchido automaticamente)
+stocks[0][productId]: (will be automatically filled)
 stocks[0][size]: M
-stocks[0][color]: Preto
+stocks[0][color]: Black
 stocks[0][quantity]: 10
-stocks[1][productId]: (será preenchido automaticamente)
-stocks[1][size]: G
-stocks[1][color]: Azul
+stocks[1][productId]: (will be automatically filled)
+stocks[1][size]: L
+stocks[1][color]: Blue
 stocks[1][quantity]: 5
-files: [selecionar arquivo de imagem]
+files: [select image file]
 ```
 
-**⚠️ NOTA:** Para criar produto com estoque, você precisa primeiro criar o produto sem estoque, depois adicionar o estoque separadamente via `/stocks`.
+**⚠️ NOTE:** To create a product with stock, you first need to create the product without stock, then add stock separately via `/stocks`.
 
-**Alternativa (sem estoque inicial):**
+**Alternative (without initial stock):**
 ```json
 {
-  "name": "Mochila Premium",
-  "description": "Mochila resistente",
+  "name": "Premium Backpack",
+  "description": "Durable backpack",
   "price": 299.90,
   "weight": 1500,
   "width": 35,
@@ -154,7 +154,7 @@ files: [selecionar arquivo de imagem]
 ```
 
 ### PATCH /products/:id
-**Autenticado + Permissão:** `product:update`
+**Authenticated + Permission:** `product:update`
 
 **Headers:**
 ```
@@ -165,14 +165,14 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "Mochila Premium Atualizada",
+  "name": "Updated Premium Backpack",
   "price": 349.90,
-  "description": "Nova descrição"
+  "description": "New description"
 }
 ```
 
 ### DELETE /products/:id
-**Autenticado + Permissão:** `product:delete`
+**Authenticated + Permission:** `product:delete`
 
 **Headers:**
 ```
@@ -181,10 +181,10 @@ Authorization: Bearer {{token}}
 
 ---
 
-## 📊 ESTOQUE
+## 📊 STOCK
 
 ### GET /stocks
-**Autenticado + Permissão:** `stock:view`
+**Authenticated + Permission:** `stock:view`
 
 **Headers:**
 ```
@@ -192,7 +192,7 @@ Authorization: Bearer {{token}}
 ```
 
 ### POST /stocks
-**Autenticado + Permissão:** `stock:manage`
+**Authenticated + Permission:** `stock:manage`
 
 **Headers:**
 ```
@@ -205,13 +205,13 @@ Content-Type: application/json
 {
   "productId": "550e8400-e29b-41d4-a716-446655440000",
   "size": "M",
-  "color": "Preto",
+  "color": "Black",
   "quantity": 10
 }
 ```
 
 ### PATCH /stocks/:id
-**Autenticado + Permissão:** `stock:manage`
+**Authenticated + Permission:** `stock:manage`
 
 **Headers:**
 ```
@@ -223,13 +223,13 @@ Content-Type: application/json
 ```json
 {
   "quantity": 15,
-  "size": "G",
-  "color": "Azul"
+  "size": "L",
+  "color": "Blue"
 }
 ```
 
 ### DELETE /stocks/:id
-**Autenticado + Permissão:** `stock:manage`
+**Authenticated + Permission:** `stock:manage`
 
 **Headers:**
 ```
@@ -238,10 +238,10 @@ Authorization: Bearer {{token}}
 
 ---
 
-## 🛒 PEDIDOS
+## 🛒 ORDERS
 
 ### POST /orders
-**Autenticado + Permissão:** `order:manage` ou `cart:manage`
+**Authenticated + Permission:** `order:manage` or `cart:manage`
 
 **Headers:**
 ```
@@ -262,13 +262,13 @@ Content-Type: application/json
 }
 ```
 
-**Opções de `paymentMethod`:**
-- `"pix"` - Desconto de 10%
-- `"credit_card"` - Cartão de crédito
-- `"debit_card"` - Cartão de débito
+**`paymentMethod` Options:**
+- `"pix"` - 10% discount
+- `"credit_card"` - Credit card
+- `"debit_card"` - Debit card
 
 ### GET /orders
-**Autenticado + Permissão:** `order:view`
+**Authenticated + Permission:** `order:view`
 
 **Headers:**
 ```
@@ -276,7 +276,7 @@ Authorization: Bearer {{token}}
 ```
 
 ### GET /orders/me
-**Autenticado + Permissão:** `order:view`
+**Authenticated + Permission:** `order:view`
 
 **Headers:**
 ```
@@ -284,7 +284,7 @@ Authorization: Bearer {{token}}
 ```
 
 ### GET /orders/:id
-**Autenticado + Permissão:** `order:view`
+**Authenticated + Permission:** `order:view`
 
 **Headers:**
 ```
@@ -292,7 +292,7 @@ Authorization: Bearer {{token}}
 ```
 
 ### PATCH /orders/:id/cancel
-**Autenticado + Permissão:** `order:manage`
+**Authenticated + Permission:** `order:manage`
 
 **Headers:**
 ```
@@ -301,10 +301,10 @@ Authorization: Bearer {{token}}
 
 ---
 
-## 📍 ENDEREÇOS
+## 📍 ADDRESSES
 
 ### POST /address
-**Autenticado + Permissão:** `address:manage`
+**Authenticated + Permission:** `address:manage`
 
 **Headers:**
 ```
@@ -315,19 +315,19 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "João Silva",
+  "name": "John Doe",
   "zipCode": "26584-260",
   "phone": "(11)98765-4321",
-  "address": "Rua das Flores, 123",
-  "additional": "Apto 202",
-  "reference": "Próximo ao mercado"
+  "address": "123 Flower Street",
+  "additional": "Apt 202",
+  "reference": "Near marketplace"
 }
 ```
 
-**⚠️ NOTA:** O primeiro endereço cadastrado será automaticamente definido como padrão. Para trocar o endereço padrão, use `PATCH /address/:id/set-default`.
+**⚠️ NOTE:** The first address registered will automatically be set as the default. To change the default address, use `PATCH /address/:id/set-default`.
 
 ### GET /address/me
-**Autenticado + Permissão:** `address:manage`
+**Authenticated + Permission:** `address:manage`
 
 **Headers:**
 ```
@@ -335,7 +335,7 @@ Authorization: Bearer {{token}}
 ```
 
 ### PATCH /address/:id/set-default
-**Autenticado + Permissão:** `address:manage`
+**Authenticated + Permission:** `address:manage`
 
 **Headers:**
 ```
@@ -343,7 +343,7 @@ Authorization: Bearer {{token}}
 ```
 
 ### DELETE /address/:id
-**Autenticado + Permissão:** `address:manage`
+**Authenticated + Permission:** `address:manage`
 
 **Headers:**
 ```
@@ -352,10 +352,10 @@ Authorization: Bearer {{token}}
 
 ---
 
-## 💳 PAGAMENTOS
+## 💳 PAYMENTS
 
 ### POST /payments/card
-**Autenticado + Permissão:** `order:manage` ou `cart:manage`
+**Authenticated + Permission:** `order:manage` or `cart:manage`
 
 **Headers:**
 ```
@@ -367,22 +367,22 @@ Content-Type: application/json
 ```json
 {
   "orderId": "550e8400-e29b-41d4-a716-446655440000",
-  "token": "token_do_mercado_pago",
+  "token": "mercado_pago_token",
   "installments": 3,
   "paymentMethodId": "credit_card"
 }
 ```
 
-**⚠️ NOTA:** O `token` deve ser gerado no frontend usando o SDK do Mercado Pago.
+**⚠️ NOTE:** The `token` must be generated on the frontend using the Mercado Pago SDK.
 
 ---
 
-## 🔐 PERMISSÕES (Apenas OWNER)
+## 🔐 PERMISSIONS (OWNER Only)
 
-### REGRAS
+### RULES
 
 #### GET /permissions/rules
-**Autenticado + Permissão:** `rule:view`
+**Authenticated + Permission:** `rule:view`
 
 **Headers:**
 ```
@@ -390,7 +390,7 @@ Authorization: Bearer {{token}}
 ```
 
 #### GET /permissions/rules/:id
-**Autenticado + Permissão:** `rule:view`
+**Authenticated + Permission:** `rule:view`
 
 **Headers:**
 ```
@@ -398,7 +398,7 @@ Authorization: Bearer {{token}}
 ```
 
 #### POST /permissions/rules
-**Autenticado + Permissão:** `rule:create` (apenas OWNER)
+**Authenticated + Permission:** `rule:create` (OWNER only)
 
 **Headers:**
 ```
@@ -409,14 +409,14 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "Nova Permissão",
+  "name": "New Permission",
   "slug": "resource:action",
-  "description": "Descrição da permissão"
+  "description": "Permission description"
 }
 ```
 
 #### PUT /permissions/rules/:id
-**Autenticado + Permissão:** `rule:update` (apenas OWNER)
+**Authenticated + Permission:** `rule:update` (OWNER only)
 
 **Headers:**
 ```
@@ -427,24 +427,24 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "Permissão Atualizada",
+  "name": "Updated Permission",
   "slug": "resource:action",
-  "description": "Nova descrição"
+  "description": "New description"
 }
 ```
 
 #### DELETE /permissions/rules/:id
-**Autenticado + Permissão:** `rule:delete` (apenas OWNER)
+**Authenticated + Permission:** `rule:delete` (OWNER only)
 
 **Headers:**
 ```
 Authorization: Bearer {{token}}
 ```
 
-### PERFIS
+### PROFILES
 
 #### GET /permissions/profiles
-**Autenticado + Permissão:** `profile:view`
+**Authenticated + Permission:** `profile:view`
 
 **Headers:**
 ```
@@ -452,7 +452,7 @@ Authorization: Bearer {{token}}
 ```
 
 #### GET /permissions/profiles/:id
-**Autenticado + Permissão:** `profile:view`
+**Authenticated + Permission:** `profile:view`
 
 **Headers:**
 ```
@@ -460,7 +460,7 @@ Authorization: Bearer {{token}}
 ```
 
 #### POST /permissions/profiles
-**Autenticado + Permissão:** `profile:create` (apenas OWNER)
+**Authenticated + Permission:** `profile:create` (OWNER only)
 
 **Headers:**
 ```
@@ -471,16 +471,16 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "ADMIN_TESTE",
-  "description": "Perfil de teste com todas as permissões",
+  "name": "TEST_ADMIN",
+  "description": "Test profile with all permissions",
   "ruleIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 }
 ```
 
-**⚠️ IMPORTANTE:** Para criar um perfil com todas as permissões do OWNER, primeiro liste todas as regras com `GET /permissions/rules` e pegue todos os IDs.
+**⚠️ IMPORTANT:** To create a profile with all OWNER permissions, first list all rules with `GET /permissions/rules` and get all IDs.
 
 #### PUT /permissions/profiles/:id
-**Autenticado + Permissão:** `profile:update` (apenas OWNER)
+**Authenticated + Permission:** `profile:update` (OWNER only)
 
 **Headers:**
 ```
@@ -491,24 +491,24 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "ADMIN_TESTE_ATUALIZADO",
-  "description": "Descrição atualizada",
+  "name": "UPDATED_TEST_ADMIN",
+  "description": "Updated description",
   "ruleIds": [1, 2, 3, 4, 5]
 }
 ```
 
 #### DELETE /permissions/profiles/:id
-**Autenticado + Permissão:** `profile:delete` (apenas OWNER)
+**Authenticated + Permission:** `profile:delete` (OWNER only)
 
 **Headers:**
 ```
 Authorization: Bearer {{token}}
 ```
 
-### GERENCIAMENTO DE PERFIS DE USUÁRIO
+### USER PROFILE MANAGEMENT
 
 #### GET /permissions/users/:userId/profiles
-**Autenticado + Permissão:** `user:view-profiles`
+**Authenticated + Permission:** `user:view-profiles`
 
 **Headers:**
 ```
@@ -516,20 +516,20 @@ Authorization: Bearer {{token}}
 ```
 
 #### POST /permissions/users/:userId/profiles/:profileId
-**Autenticado + Permissão:** `user:assign-profile` (apenas OWNER)
+**Authenticated + Permission:** `user:assign-profile` (OWNER only)
 
 **Headers:**
 ```
 Authorization: Bearer {{token}}
 ```
 
-**Exemplo:**
+**Example:**
 ```
 POST {{base_url}}/permissions/users/1/profiles/2
 ```
 
 #### DELETE /permissions/users/:userId/profiles/:profileId
-**Autenticado + Permissão:** `user:remove-profile` (apenas OWNER)
+**Authenticated + Permission:** `user:remove-profile` (OWNER only)
 
 **Headers:**
 ```
@@ -540,23 +540,23 @@ Authorization: Bearer {{token}}
 
 ## 📊 DASHBOARD
 
-### GET /dashboard/statistics
-**Autenticado + Permissão:** `order:view` ou `user:view`
+#### GET /dashboard/statistics
+**Authenticated + Permission:** `order:view` or `user:view`
 
 **Headers:**
 ```
 Authorization: Bearer {{token}}
 ```
 
-### GET /dashboard/sales-chart
-**Autenticado + Permissão:** `order:view`
+#### GET /dashboard/sales-chart
+**Authenticated + Permission:** `order:view`
 
 **Headers:**
 ```
 Authorization: Bearer {{token}}
 ```
 
-**Query Params (opcional):**
+**Query Params (optional):**
 ```
 ?days=30
 ```
@@ -566,12 +566,12 @@ Authorization: Bearer {{token}}
 ## 🔔 WEBHOOKS
 
 ### POST /webhooks/mercadopago
-**Público** - Webhook do Mercado Pago
+**Public** - Mercado Pago Webhook
 
 **Headers:**
 ```
 Content-Type: application/json
-x-signature: (assinatura do Mercado Pago)
+x-signature: (Mercado Pago signature)
 ```
 
 **Body (JSON):**
@@ -586,22 +586,22 @@ x-signature: (assinatura do Mercado Pago)
 
 ---
 
-## 📝 COMO CRIAR UM PERFIL COM TODAS AS PERMISSÕES DO OWNER
+## 📝 HOW TO CREATE A PROFILE WITH ALL OWNER PERMISSIONS
 
-### Passo 1: Fazer login como OWNER
+### Step 1: Login as OWNER
 ```
 POST {{base_url}}/auth/login
 ```
 
-### Passo 2: Listar todas as regras
+### Step 2: List all rules
 ```
 GET {{base_url}}/permissions/rules
 Authorization: Bearer {{token}}
 ```
 
-Copie todos os `id` das regras retornadas.
+Copy all `id` of the returned rules.
 
-### Passo 3: Criar o perfil com todas as regras
+### Step 3: Create the profile with all rules
 ```
 POST {{base_url}}/permissions/profiles
 Authorization: Bearer {{token}}
@@ -611,42 +611,42 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-  "name": "ADMIN_COMPLETO",
-  "description": "Perfil com todas as permissões do sistema",
+  "name": "FULL_ADMIN",
+  "description": "Profile with all system permissions",
   "ruleIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 }
 ```
 
-**⚠️ IMPORTANTE:** Substitua os números pelos IDs reais das regras que você obteve no Passo 2.
+**⚠️ IMPORTANT:** Replace the numbers with the real IDs of the rules you obtained in Step 2.
 
-### Passo 4: Atribuir o perfil a um usuário
+### Step 4: Assign the profile to a user
 ```
 POST {{base_url}}/permissions/users/{userId}/profiles/{profileId}
 Authorization: Bearer {{token}}
 ```
 
-Substitua `{userId}` pelo ID do usuário e `{profileId}` pelo ID do perfil criado.
+Replace `{userId}` with the user's ID and `{profileId}` with the created profile's ID.
 
 ---
 
-## 🎯 ORDEM RECOMENDADA DE TESTES
+## 🎯 RECOMMENDED TEST ORDER
 
-1. **Criar usuário** → `POST /users`
-2. **Fazer login** → `POST /auth/login` (salvar token)
-3. **Criar endereço** → `POST /address`
-4. **Listar produtos** → `GET /products`
-5. **Criar produto** → `POST /products` (precisa de permissão)
-6. **Criar estoque** → `POST /stocks` (precisa de permissão)
-7. **Criar pedido** → `POST /orders`
-8. **Ver pedidos** → `GET /orders/me`
-9. **Ver dashboard** → `GET /dashboard/statistics` (precisa de permissão)
+1. **Create user** → `POST /users`
+2. **Login** → `POST /auth/login` (save token)
+3. **Create address** → `POST /address`
+4. **List products** → `GET /products`
+5. **Create product** → `POST /products` (permission required)
+6. **Create stock** → `POST /stocks` (permission required)
+7. **Create order** → `POST /orders`
+8. **View orders** → `GET /orders/me`
+9. **View dashboard** → `GET /dashboard/statistics` (permission required)
 
 ---
 
-## ⚠️ NOTAS IMPORTANTES
+## ⚠️ IMPORTANT NOTES
 
-1. **Token JWT:** Após fazer login, copie o `access_token` e use no header `Authorization: Bearer {token}`
-2. **Permissões:** A maioria das rotas precisa de permissões específicas. Use um usuário com perfil OWNER para testar tudo.
-3. **Criar perfil OWNER:** Primeiro usuário precisa ter o perfil OWNER atribuído manualmente via banco de dados ou endpoint.
-4. **Produtos com imagens:** Use `multipart/form-data` e adicione as imagens no campo `files`.
-5. **IDs dinâmicos:** Os IDs retornados nas respostas devem ser usados nas próximas requisições.
+1. **JWT Token:** After logging in, copy the `access_token` and use it in the `Authorization: Bearer {token}` header.
+2. **Permissions:** Most routes need specific permissions. Use a user with an OWNER profile to test everything.
+3. **Create OWNER profile:** The first user needs to have the OWNER profile assigned manually via database or endpoint.
+4. **Products with images:** Use `multipart/form-data` and add images in the `files` field.
+5. **Dynamic IDs:** The IDs returned in responses should be used in subsequent requests.
